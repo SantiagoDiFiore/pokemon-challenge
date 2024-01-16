@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/alt-text */
 import {
   Stack,
   Text,
@@ -6,6 +7,8 @@ import {
   Badge,
   AspectRatio,
 } from "@chakra-ui/react";
+import { typeColors } from "@/const";
+import { handleTypeColor } from "@/helpers";
 
 export default function PokemonCard({ pokemon }) {
   return (
@@ -27,7 +30,11 @@ export default function PokemonCard({ pokemon }) {
       </Text>
       <HStack>
         {pokemon.types.map((type) => (
-          <Badge size="xs" key={type.slot}>
+          <Badge
+            size="xs"
+            colorScheme={handleTypeColor(type.type.name, typeColors)}
+            key={type.slot}
+          >
             {type.type.name}
           </Badge>
         ))}

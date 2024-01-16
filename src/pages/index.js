@@ -1,14 +1,10 @@
 import Head from "next/head";
 
-import { Inter, Island_Moments } from "next/font/google";
-import styles from "@/styles/Home.module.css";
 import axios from "axios";
-const inter = Inter({ subsets: ["latin"] });
 import { useEffect, useState } from "react";
 import {
   Container,
   Stack,
-  Input,
   Button,
   SimpleGrid,
   Flex,
@@ -23,6 +19,8 @@ import {
 } from "@chakra-ui/react";
 import PokemonCard from "@/components/PokemonCard";
 import PokemonData from "@/components/PokemonData";
+import FavoritePokemon from "@/components/FavoriteButton";
+import SearchPokemon from "@/components/SearchButton";
 
 export default function Home() {
   const pokemonDataModal = useDisclosure();
@@ -46,7 +44,29 @@ export default function Home() {
     });
   }, [currentPage]);
 
-  function handleNextPage() {}
+  function isMobile() {
+    return window.innerWidth <= 425;
+  }
+
+  async function handleNextPage() {
+    if (!currentPage) return;
+
+    setIsLoading(true);
+    try {
+      const response = await axios.get(currentPage);
+      const nextUrl = response.data.next;
+
+      if (nextUrl) {
+        setCurrentPage(nextUrl);
+      } else {
+        setCurrentPage(null);
+      }
+    } catch (error) {
+      console.error("Error al cargar la siguiente página:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   function handleViewPokemon(pokemon) {
     setSelectedPokemon(pokemon);
@@ -61,10 +81,18 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <Flex alignItems="center" minH="100vh" justifyContent="center">
+      <Flex
+        alignItems="center"
+        minH="100vh"
+        justifyContent="center"
+        direction="column"
+      >
         <Container maxW="container.lg">
           <Stack p="5" alignItems="center" spacing="5">
-            <SimpleGrid spacing="5" columns={{ base: 1, md: 5 }}>
+            <SimpleGrid
+              spacing="5"
+              columns={{ base: !isMobile ? 1 : 2, md: 5 }}
+            >
               {pokemon.map((pokemon) => (
                 <Box
                   as="button"
@@ -77,11 +105,13 @@ export default function Home() {
             </SimpleGrid>
 
             <Button isLoading={false} onClick={handleNextPage}>
-              Cargas más
+              Load More
             </Button>
           </Stack>
         </Container>
       </Flex>
+      <SearchPokemon />
+      <FavoritePokemon />
       <Modal {...pokemonDataModal}>
         <ModalOverlay />
         <ModalContent>
